@@ -6,14 +6,25 @@
         <div class="logo">
           <router-link to="/Home">Z个人博客</router-link>
         </div>
-        <ul id="starlist">
-          <li v-for="(Hitem, index) in Hitems" :class="{ selected:changeRed == index}" @click="change(index)">
-            <router-link v-bind:to="Hitem.router">{{ Hitem.name }}</router-link>
+        <ul id="starlist" v-if="userName" >
+          <li v-for="(item, index) in Litems" >
+            <router-link v-bind:to="item.router">{{ item.name }}</router-link>
+          </li>
+        </ul>
+        <ul id="starlist" v-else>
+          <li v-for="(item, index) in Hitems" >
+            <router-link v-bind:to="item.router">{{ item.name }}</router-link>
           </li>
         </ul>
       </div>
     </header>
-    <router-view/>
+    <router-view @userLogin="userLogin" @userLogout="userLogout"/>
+
+    <footer>
+      <p>
+        Made by Z个人博客 仅供学习使用
+      </p>
+    </footer>
   </div>
 </template>
 
@@ -22,20 +33,35 @@ export default {
   name: 'App',
   data () {
     return {
+      userName: sessionStorage.userName,
       Hitems: [
         { router: '/Home', name: '博客首页'},
         { router: '/AboutUs', name: '关于我们'},
-        { router: '/Study', name: '学无止境'},
-        { router: '/Life', name: '漫步生活'},
+        { router: '/xwzj', name: '学无止境'},
+        { router: '/mbrs', name: '漫步人生'},
         { router: '/LoginReg', name: '登录/注册'}
       ],
-      changeRed: 0
+      Litems: [
+        { router: '/Home', name: '博客首页'},
+        { router: '/AboutUs', name: '关于我们'},
+        { router: '/xwzj', name: '学无止境'},
+        { router: '/mbrs', name: '漫步人生'},
+        { router: '/post', name: '发表博客' },
+        { router: '/Personal', name: '个人中心'},
+        { router: '/logout', name: '登出'}
+      ]
     }
   },
   methods:{
-    change (index) {
-      console.log(index);
-      this.changeRed = index;
+    userLogin (userName) {
+      sessionStorage.userName = userName;
+      console.log(sessionStorage);
+      this.userName = sessionStorage.userName;
+    },
+    userLogout (userName) {
+      sessionStorage.userName = userName;
+      console.log(sessionStorage);
+      this.userName = sessionStorage.userName;
     }
   }
 }
@@ -49,6 +75,10 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+
+a.router-link-active {
+  color:#f65a8a;
 }
 
 body {
@@ -66,6 +96,7 @@ header {
   width: 100%;
   color: #FFF;
   background: #333;
+  opacity: 0.8;
   line-height: 46px;
   overflow: hidden;
   position: fixed;
@@ -74,7 +105,7 @@ header {
 }
 
 #mnav {
-  width: 90%;
+  width: 1100px;
   overflow: hidden;
   margin: auto;
 }
@@ -111,8 +142,13 @@ ul, li {
   font-size: 18px;
 }
 
-.selected * {
-  color: #f65a8a;
+footer {
+  width: 100%;
+  background: #333;
+  opacity: 0.8;
+  color: #a5a4a4;
+  text-align: center;
+  padding: 20px 0;
+  margin-top: 20px;
 }
-
 </style>

@@ -1,6 +1,8 @@
 <template>
+<!-- import func from './vue-temp/vue-editor-bridge'; -->
   <div class="centerbox">
     <div class="mgbox">
+      <div class="blank"></div>
       <div class="centerbox_title">
         <span class="login_title title_selected" @click="loginshow()">
             登录
@@ -11,29 +13,34 @@
       </div>
       <div class="reg_box" style="display:none">
         <div class="user_reg_info">
-          <form method="get" @submit="submit" onsubmit="return checkForm()">
-            <input class="user_reg_name" type="text" name="name" placeholder="输入用户名" @blur="blurName()" v-model="input.userName"/>
+          <form>
+            <input class="user_reg_name" type="text" name="name" placeholder="输入用户名" @blur="blurName()" v-model="reg.userName"/>
             <div class="tip_type" id="user_reg_name_tip">*请输入1-10位字符或数字</div>
 
-            <input class="user_reg_pwd" type="password" name="password" placeholder="输入密码" @blur="blurPwd()" v-model="input.password"/>
+            <input class="user_reg_pwd" type="password" name="password" placeholder="输入密码" @blur="blurPwd()" v-model="reg.password"/>
             <div class="tip_type" id="user_reg_pwd_tip">*请输入6-10位字符或数字密码</div>
 
-            <input class="user_reg_repwd" type="password" name="password-repeat" placeholder="确认密码" @blur="blurRepwd()"/>
+            <input class="user_reg_repwd" type="password" name="password-repeat" placeholder="确认密码" @blur="blurRepwd()" v-model="reg.repassword"/>
             <div class="tip_type" id="user_reg_repwd_tip">*请再次输入密码</div>
 
-            <input class="user_reg_email" type="email" name="email" placeholder="输入邮箱" @blur="blurEmail()" v-model="input.email"/>
+            <input class="user_reg_email" type="email" name="email" placeholder="输入邮箱" @blur="blurEmail()" v-model="reg.email"/>
             <div class="tip_type" id="user_reg_email_tip">*请输入邮箱</div>
 
-            <input class="reg_btn" type="submit" value="注册" />
+            <input class="reg_btn" type="button" value="注册" @click="submitReg()"/>
           </form>
         </div>
       </div>
       <div class="login_box">
         <div class="user_login_info">
-            <form method="post" @submit="submitLogin" action="http://localhost:8080/login">
-                <input class="user_act" type="text" name="name" placeholder="输入账号" v-model="login.userName"/><br/>
+            <!-- <form method="post" action="http://localhost:8080/login">
+                <input class="user_act" type="text" name="userName" placeholder="输入账号" v-model="login.userName"/><br/>
                 <input class="user_pwd" type="password" name="password" placeholder="输入密码" v-model="login.password"/><br/>
                 <input id="login_btn" class="login_btn" type="submit" value="登录"/>
+            </form> -->
+            <form>
+                <input class="user_act" type="text" name="userName" placeholder="输入账号" v-model="login.userName"/><br/>
+                <input class="user_pwd" type="password" name="password" placeholder="输入密码" v-model="login.password"/><br/>
+                <input id="login_btn" class="login_btn" type="button" value="登录" @click="submitLogin()"/>
             </form>
         </div>
       </div>
@@ -49,9 +56,8 @@ var flag_email = 0;
 export default {
   name: 'LoginReg',
   data () {
-
      return {
-       input: {
+       reg: {
 
        },
        login: {
@@ -128,38 +134,53 @@ export default {
           flag_email = 1;
       }
     },
-    checkForm: function () {
-      alert(flag_name,flag_pwd,flag_repwd,flag_email);
-      if(flag_name == 0 || flag_pwd == 0 || flag_repwd == 0 || flag_email == 0)
-        return false;
-    },
-    submit: function () {
+    submitReg: function () {
       //console.log(this.input);
-      $.post("http://localhost:8080/insertUser",this.input, function (result) {
-        alert(result);
-      })
+      if(flag_name == 1 && flag_pwd == 1 && flag_repwd == 1 && flag_email == 1) {
+        $.post("http://localhost:8080/register", this.reg, (result) => {
+          if(result == 1) {
+            alert(result);
+            this.reg = {};
+            this.loginshow();            
+          }
+          else 
+            alert(result);
+        });
+      } else {
+        alert("请填写完整信息！");
+      }
     },
     submitLogin: function () {
-      //console.log(this.login);
-      $.post("http://localhost:8080/login",this.login, function (result) {
-        alert(result);
-      })
+      // this.$router.push('/');
+      // this.$emit('userLogin', 'user');
+      $.post("http://localhost:8080/login", this.login, (result) => {
+        if(result == 1) {
+          this.$router.push('/');
+          this.$emit('userLogin', this.login.userName);
+        }
+        else
+          alert(result);
+      });
     }
   }
 }
 </script>
 
 <style  scoped>
-  
   .centerbox {
-    width: 60%;
+    width: 1100px;
     overflow: hidden;
     margin: auto;
   }
 
   .mgbox {
+    width: 80%;
     background: #fff;
     border-radius: 10px;
+    margin: auto;
+  }
+
+  .blank {
     margin: 20px 0;
   }
 

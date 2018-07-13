@@ -1,16 +1,16 @@
 <template>
   <div class="hello">
-    this is
+    this is jj
   </div>
 </template>
 
 
 <script>
 export default {
-  name: 'HelloWorld',
+  name: 'jj',
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      
     }
   },
   methods:{
@@ -18,8 +18,3 @@ export default {
   }
 }
 </script>
-
-
-<style scoped>
-
-</style>
