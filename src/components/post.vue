@@ -18,8 +18,8 @@
                 <h2>正文</h2>
 
                 <!-- <textarea id="post_text" name="post" rows="12" cols="59" placeholder="请在此输入正文" v-model="post.article"></textarea> -->
-                <mavon-editor v-model="post.article" ></mavon-editor>
-
+                <mavon-editor v-model="post.article" ref="md" @imgAdd="imgAdd()"></mavon-editor>
+    
                 <input class="post_btn" type="button" value="发表" @click="articlePost()"/>
 
             </form>
@@ -28,6 +28,10 @@
 </template>
 
 <script>
+import Vue from 'vue'
+import axios from 'axios'
+import VueMarkdown from 'vue-markdown'
+Vue.prototype.$axios = axios
 export default {
     name: "post",
     data () {
@@ -38,8 +42,12 @@ export default {
           ],
           post: {
 
-          }
+          },
+          content: '## 这里是要展示的文字'
       }
+    },
+    components: {
+        'vue-markdown': VueMarkdown
     },
     methods: {
         selectVal: function(ele) {
@@ -88,25 +96,29 @@ export default {
             })
         },
         // 绑定@imgAdd event
-        // imgAdd (pos, $file) {
-        //     // 第一步.将图片上传到服务器.
-        //    var formdata = new FormData();
-        //    formdata.append('image', $file);
-        //    this.$axios({
-        //        url: 'http://localhost:8080/static/img',
-        //        method: 'post',
-        //        data: formdata,
-        //        headers: { 'Content-Type': 'multipart/form-data' },
-        //    }).then((url) => {
-        //        // 第二步.将返回的url替换到文本原位置![...](./0) -> ![...](url)
-        //        /**
-        //        * $vm 指为mavonEditor实例，可以通过如下两种方式获取
-        //        * 1. 通过引入对象获取: `import {mavonEditor} from ...` 等方式引入后，`$vm`为`mavonEditor`
-        //        * 2. 通过$refs获取: html声明ref : `<mavon-editor ref=md ></mavon-editor>，`$vm`为 `this.$refs.md`
-        //        */
-        //        $vm.$img2Url(pos, url);
-        //    })
-        // }
+        imgAdd (pos, $file) {
+            // 第一步.将图片上传到服务器.
+            //console.log(pos);
+            //console.log($file);
+           var formdata = new FormData();
+           formdata.append('image', $file);
+           console.log(formdata);
+           this.$axios({
+               url: 'http://localhost:8080/file/fileupload.do',
+               method: 'get',
+               data: formdata,
+               headers: { 'Content-Type': 'multipart/form-data' },
+           }).then((url) => {
+               // 第二步.将返回的url替换到文本原位置![...](./0) -> ![...](url)
+               /**
+               * $vm 指为mavonEditor实例，可以通过如下两种方式获取
+               * 1. 通过引入对象获取: `import {mavonEditor} from ...` 等方式引入后，`$vm`为`mavonEditor`
+               * 2. 通过$refs获取: html声明ref : `<mavon-editor ref=md ></mavon-editor>，`$vm`为 `this.$refs.md`
+               */
+              console.log(url);
+               $vm.$img2Url(pos, url);
+           })
+        }
     },
     watch: {
         

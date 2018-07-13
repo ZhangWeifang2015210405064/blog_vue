@@ -17,7 +17,7 @@
                     </router-link>
                   </span>
                   <p>
-                    {{ article.article }}
+                    {{ article.article_intro }}
                   </p>
                 </div>
                 <div class="autor">
@@ -34,6 +34,7 @@
                     喜欢&nbsp;({{ article.praise }})
                   </span>
                 </div>
+                <div class="article" v-html="compiledMarkdown"></div>
                 <!-- <h3 class="blogtitle">
                   <router-link to="">制作个人博客，我是怎么收费的</router-link>
                 </h3>
@@ -116,6 +117,8 @@
 
 <script>
 import Vue from "vue";
+import marked from 'marked';
+
 export default {
   name: "Home",
   data() {
@@ -150,12 +153,17 @@ export default {
   methods: {
     getArticle() {
       $.getJSON(
-        "http://localhost:8080/selectArticle?article_name=zwf1",
+        "http://localhost:8080/selectArticle?article_name=mktest1",
         result => {
           console.log(result);
           this.article = result;
         }
       );
+    }
+  },
+  computed: {
+    compiledMarkdown () {
+      return marked(this.article.article, { sanitize: true})
     }
   }
 };
