@@ -16,9 +16,11 @@
                 <h2>简介</h2>
                 <input class="post_name" type="text" name="intro" placeholder="请输入简介" v-model="post.article_intro"/>
                 <h2>正文</h2>
-
+                <br>
+                <br>
+                <br>
                 <!-- <textarea id="post_text" name="post" rows="12" cols="59" placeholder="请在此输入正文" v-model="post.article"></textarea> -->
-                <mavon-editor v-model="post.article" ref="md" @imgAdd="imgAdd()"></mavon-editor>
+                <mavon-editor v-model="post.article" ref="md" @imgAdd="$imgAdd"></mavon-editor>
     
                 <input class="post_btn" type="button" value="发表" @click="articlePost()"/>
 
@@ -43,7 +45,7 @@ export default {
           post: {
 
           },
-          content: '## 这里是要展示的文字'
+          global: this.GLOBAL.Path
       }
     },
     components: {
@@ -91,21 +93,23 @@ export default {
             console.log(sessionStorage);
             this.post.userName = sessionStorage.userName;
             console.log(this.post);
-            $.post("http://localhost:8080/insertArticle", this.post, function (result) {
+            $.post(this.global[0]+"/insertArticle", this.post, function (result) {
                 alert(result);
             })
         },
         // 绑定@imgAdd event
-        imgAdd (pos, $file) {
+        $imgAdd (pos, $file) {
             // 第一步.将图片上传到服务器.
             //console.log(pos);
             //console.log($file);
            var formdata = new FormData();
            formdata.append('image', $file);
            console.log(formdata);
+           console.log(pos);
+           console.log($file);
            this.$axios({
-               url: 'http://localhost:8080/file/fileupload.do',
-               method: 'get',
+               url: this.global[0]+'/testUpload',
+               method: 'post',
                data: formdata,
                headers: { 'Content-Type': 'multipart/form-data' },
            }).then((url) => {
@@ -115,10 +119,32 @@ export default {
                * 1. 通过引入对象获取: `import {mavonEditor} from ...` 等方式引入后，`$vm`为`mavonEditor`
                * 2. 通过$refs获取: html声明ref : `<mavon-editor ref=md ></mavon-editor>，`$vm`为 `this.$refs.md`
                */
-              console.log(url);
-               $vm.$img2Url(pos, url);
+              console.log(pos.toString());
+              console.log(url.data);
+               this.$refs.md.$img2Url(pos, url.data);
            })
-        }
+        },
+        // $imgDel (pos) {
+        //     var formdata = new FormData();
+        //     formdata.append('image', pos[0]);
+        //     console.log(formdata);
+        //     console.log(pos);
+            
+        //     this.$axios({
+        //         url: this.global[0]+'/testDel',
+        //         method: 'post',
+        //         data: formdata,
+        //         headers: { 'Content-Type': 'multipart/form-data' },
+        //     }).then((result) => {
+                
+        //         console.log(result.data);
+        //         console.log(pos[1]);
+                
+        //         // this.$refs.md.$refs.toolbar_left.$imgDelByFilename(pos[0].name);
+        //         this.$refs.md.$img2Url(pos[1], "123");
+        //         console.log(this.$refs.md);
+        //     })
+        // }
     },
     watch: {
         

@@ -20,6 +20,10 @@ Vue.use(Router)
 export default new Router({
   routes: [
     {
+      path: '/HelloWorld',
+      component: HelloWorld
+    },
+    {
       path: '/',
       redirect: '/Home'
     },{

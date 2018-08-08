@@ -6,10 +6,12 @@ import router from './router'
 import $ from 'jquery'
 import mavonEditor from 'mavon-editor'
 import 'mavon-editor/dist/css/index.css'
+import global_ from './components/tool/Global'
+
 
 Vue.config.productionTip = false
 Vue.use(mavonEditor)
-
+Vue.prototype.GLOBAL = global_
 
 /* eslint-disable no-new */
 new Vue({

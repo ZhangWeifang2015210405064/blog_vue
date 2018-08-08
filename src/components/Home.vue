@@ -6,7 +6,7 @@
               博客首页
             </h2>
             <ul>
-              <li >
+              <li v-for="article in articles">
                 <h3 class="blogtitle">
                   <router-link to="">{{ article.article_name }}</router-link>
                 </h3>
@@ -34,7 +34,7 @@
                     喜欢&nbsp;({{ article.praise }})
                   </span>
                 </div>
-                <div class="article" v-html="compiledMarkdown"></div>
+                
                 <!-- <h3 class="blogtitle">
                   <router-link to="">制作个人博客，我是怎么收费的</router-link>
                 </h3>
@@ -66,8 +66,17 @@
                   </span>
                 </div> -->
               </li>
+              <!-- <div v-html="compiledMarkdown" ></div> -->
             </ul>
-            <div class="pagelist"></div>
+            <div class="pagelist">
+              <button class="TopPage tb btn_type" @click="TopPage">首页</button>
+              <button class="PreviousPage tb btn_type" @click="PreviousPage">上一页</button>
+              <div class="curPage tb"> {{ Page.CurPage }}</div>
+              <button class="NextPage tb btn_type" @click="NextPage">下一页</button>
+              <button class="EndPage tb btn_type" @click="EndPage">尾页</button>
+              <input class="InputPage tb input_type" placeholder="请输入页数" v-model="Page.ToPage"/>
+              <button class="ToPage tb btn_type" @click="ToPage">跳转</button>
+            </div>
           </div>
         </div>
         <div class="rightbox">
@@ -123,22 +132,18 @@ export default {
   name: "Home",
   data() {
     return {
-      // article: {
-      //   article: "",
-      //   article_id: "",
-      //   article_intro: "",
-      //   article_name: "",
-      //   author: "",
-      //   click: "",
-      //   date: "",
-      //   praise: "",
-      //   tag1: "",
-      //   tag2: ""
-      // }
-      article: {}
-    };
+      Page: {
+        'CurPage': 1,
+        'TopPage': 1,
+      },
+      articles: {
+
+      },
+      global: this.GLOBAL.Path,
+    }
   },
   created() {
+    this.getPageNum();
     this.getArticle();
   },
   beforeMount() {
@@ -148,24 +153,110 @@ export default {
     //this.getArticle();
   },
   mounted() {
-    //this.getArticle();
+    // this.getArticle();
   },
   methods: {
-    getArticle() {
+    getPageNum () {
       $.getJSON(
-        "http://localhost:8080/selectArticle?article_name=mktest1",
+        this.global[0]+"/findPages",
         result => {
           console.log(result);
-          this.article = result;
+          this.Page.totalPage = result;
+          if((result % 4) == 0)
+            this.Page.EndPage = result / 4;
+          else
+            this.Page.EndPage = result / 4 + 1;
         }
-      );
+      )
+      console.log(this.Page);
+    },
+    getArticle() {
+      console.log(this.Page.CurPage);
+      $.getJSON(
+        this.global[0]+"/findPageArticle",
+        this.Page,
+        result => {
+          console.log(result);
+          this.articles = result;
+        }
+      )
+    },
+    TopPage() {
+      this.Page.CurPage = this.Page.TopPage;
+      $.post(
+          this.global[0] + "/findPageArticle",
+          this.Page,
+          result => {
+            console.log(result);
+            this.articles = result;
+          }
+        )
+    },
+    PreviousPage() {
+      if(this.Page.CurPage != this.Page.TopPage) {
+        this.Page.CurPage -= 1;
+        console.log(this.Page.CurPage);
+        $.post(
+          this.global[0] + "/findPageArticle",
+          this.Page,
+          result => {
+            console.log(result);
+            this.articles = result;
+          }
+        )
+      }
+      else if(this.Page.CurPage == this.Page.TopPage)
+        alert("已经到达第一页");
+    },
+    NextPage() {
+      if(this.Page.CurPage != this.Page.EndPage) {
+        this.Page.CurPage += 1;
+        console.log(this.Page.CurPage);
+        $.post(
+          this.global[0] + "/findPageArticle",
+          this.Page,
+          result => {
+            console.log(result);
+            this.articles = result;
+          }
+        )
+      }
+      else if(this.Page.CurPage == this.Page.EndPage)
+        alert("已经到达最后一页");
+
+    },
+    EndPage() {
+      this.Page.CurPage = this.Page.EndPage;
+      $.post(
+          this.global[0] + "/findPageArticle",
+          this.Page,
+          result => {
+            console.log(result);
+            this.articles = result;
+          }
+        )
+    },
+    ToPage() {
+      if(this.Page.ToPage != null) {
+        this.Page.CurPage = this.Page.ToPage;
+        $.post(
+          this.global[0] + "/findPageArticle",
+          this.Page,
+          result => {
+            console.log(result);
+            this.articles = result;
+          }
+        )
+      }
+      else
+        alert("请输入需要页数！")
     }
   },
-  computed: {
-    compiledMarkdown () {
-      return marked(this.article.article, { sanitize: true})
-    }
-  }
+  // computed: {
+  //   compiledMarkdown () {
+  //     return marked(this.article.article, { sanitize: true})
+  //   }
+  // }
 };
 </script>
 
@@ -251,6 +342,7 @@ img {
 }
 
 .bloginfo p {
+  text-align: left;
   height: 100px;
   color: #888;
   overflow: hidden;
@@ -449,6 +541,37 @@ img {
   width: 100%;
   height: auto;
 }
+
+/*pagelist*/
+.pagelist {
+  display: flex;
+  justify-content: center;
+}
+
+.curPage {
+  width: 25px;
+  height: 25px;
+  border: 1px solid #eee;
+}
+
+.tb {
+  margin: 0 10px;
+}
+
+.btn_type {
+  padding: 0 10px;
+  background: #333;
+  display: block;
+  color: #fff;
+  border: 1px solid #d5dce5;
+  border-radius: 3px;
+}
+
+.input_type {
+
+}
+
+
 </style>
 
 

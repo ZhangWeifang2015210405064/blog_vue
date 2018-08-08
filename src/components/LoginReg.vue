@@ -62,7 +62,8 @@ export default {
        },
        login: {
 
-       }
+       },
+       global: this.GLOBAL.Path
      }
   },
   methods:{
@@ -137,7 +138,7 @@ export default {
     submitReg: function () {
       //console.log(this.input);
       if(flag_name == 1 && flag_pwd == 1 && flag_repwd == 1 && flag_email == 1) {
-        $.post("http://localhost:8080/register", this.reg, (result) => {
+        $.post(this.global[0]+"/register", this.reg, (result) => {
           if(result == 1) {
             alert(result);
             this.reg = {};
@@ -153,7 +154,7 @@ export default {
     submitLogin: function () {
       // this.$router.push('/');
       // this.$emit('userLogin', 'user');
-      $.post("http://localhost:8080/login", this.login, (result) => {
+      $.post(this.global[0]+"/login", this.login, (result) => {
         if(result == 1) {
           this.$router.push('/');
           this.$emit('userLogin', this.login.userName);
